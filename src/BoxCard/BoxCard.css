@@ -1,0 +1,11 @@
+.BoxCard,
+.bp3-button.BoxCard {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.BoxCard__Text {
+  padding-top: 0.5rem;
+}
