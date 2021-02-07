@@ -1,19 +1,24 @@
 import React from 'react'
+import _ from 'lodash'
+import { Boxes } from '../App'
 import { BoxCard } from '../BoxCard'
 
 import './Main.css'
 
 interface Props {
-  boxes: any[]
+  boxes: Boxes
+  onClickToggleBox: (boxName: string) => void
 }
-export function Main({ boxes }: Props) {
+export function Main({ boxes, onClickToggleBox }: Props) {
   return (
     <main className="main">
-      {boxes.map((box: any, index: number) => (
+      {_.values(boxes).map((box: any) => (
         <BoxCard
-          key={index}
+          key={box.name}
           name={box.name}
-          onClick={(ev) => console.log('tabbed')}
+          onClick={onClickToggleBox}
+          port={box.port}
+          status={box.status}
         />
       ))}
     </main>

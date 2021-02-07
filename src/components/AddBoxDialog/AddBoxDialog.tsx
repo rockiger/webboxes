@@ -9,11 +9,17 @@ import {
 } from '@blueprintjs/core'
 
 interface AddBoxDialogProps {
+  takenNames: string[]
   isOpen: boolean
   onClose: () => void
   onCreate: (name: string) => void
 }
-export function AddBoxDialog({ isOpen, onClose, onCreate }: AddBoxDialogProps) {
+export function AddBoxDialog({
+  takenNames,
+  isOpen,
+  onClose,
+  onCreate,
+}: AddBoxDialogProps) {
   const [boxName, setBoxName] = React.useState<string>('')
 
   return (
@@ -29,6 +35,10 @@ export function AddBoxDialog({ isOpen, onClose, onCreate }: AddBoxDialogProps) {
         </p>
         <div>
           <FormGroup
+            helperText={
+              takenNames.includes(boxName) ? 'Name already taken.' : <br />
+            }
+            intent={Intent.WARNING}
             label="Box Title"
             labelFor="box-name-input"
             labelInfo="(required)"
