@@ -15,7 +15,7 @@ import { AddBoxDialog } from './AddBoxDialog'
 
 const exec = util.promisify(child_process.exec)
 
-const ROOT_DIRECTORY = `${os.homedir()}/WebBoxes`
+export const ROOT_DIRECTORY = `${os.homedir()}/WebBoxes`
 const FIXED_INSTALLER_OPTIONS =
   '--unattendedmodeui none --mode unattended  --disable-components varnish --base_password pass  --launch_cloud 0'
 const WPCONFIG_NEEDLE =

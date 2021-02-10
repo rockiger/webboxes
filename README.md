@@ -11,7 +11,7 @@ Install and administer any Bitnami installer from one app.
 - [x] Start/Stop boxes
 - [x] open browser window to box
 - [x] open browser window to phpMyAdmin and admin
-- [ ] open app directory
+- [x] open app directory
 - [ ] sanitize user input
 - [ ] Show spinner during installation
 - [ ] Show toast when finished
@@ -23,4 +23,5 @@ Install and administer any Bitnami installer from one app.
 - [ ] Remove box
 - [ ] Remove deactivate/preinstalled plugins
 - [ ] Add dev plugins
+- [ ] Open terminal with dev environment
 - [ ] Make schön

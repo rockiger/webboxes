@@ -2,7 +2,7 @@ import * as React from 'react'
 import { shell } from 'electron'
 
 import { AnchorButton, Button, Card, H5, Intent, Tag } from '@blueprintjs/core'
-import { BoxStatus } from '../App'
+import { BoxStatus, ROOT_DIRECTORY } from '../App'
 import './BoxCard.css'
 
 interface PropType {
@@ -71,23 +71,30 @@ export function BoxCard({ name, port, status, onClick }: PropType) {
         {buttonText[status]}
       </Button>
 
-      <div>
-        <Button
-          minimal
-          onClick={() => shell.openExternal(baselink)}
-          text="Go to site"
-        />
-        <Button
-          minimal
-          onClick={() => shell.openExternal(`${baselink}/wp-admin`)}
-          text="Go to admin"
-        />
-        <Button
-          minimal
-          onClick={() => shell.openExternal(`${baselink}/phpmyadmin`)}
-          text="Go to database"
-        ></AnchorButton>
-      </div>
+      {status === 'started' && (
+        <div>
+          <Button
+            minimal
+            onClick={() => shell.openExternal(baselink)}
+            text="Go to site"
+          />
+          <Button
+            minimal
+            onClick={() => shell.openExternal(`${baselink}/wp-admin`)}
+            text="Go to admin"
+          />
+          <Button
+            minimal
+            onClick={() => shell.openExternal(`${baselink}/phpmyadmin`)}
+            text="Go to database"
+          />
+          <Button
+            minimal
+            onClick={() => shell.openPath(`${ROOT_DIRECTORY}/${name}/app`)}
+            text="Open app folder"
+          />
+        </div>
+      )}
     </Card>
   )
 }
