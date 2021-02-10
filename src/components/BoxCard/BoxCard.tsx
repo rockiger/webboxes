@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { shell } from 'electron'
 
-import { Button, Card, H5, Icon, Intent, Tag, Text } from '@blueprintjs/core'
+import { AnchorButton, Button, Card, H5, Intent, Tag } from '@blueprintjs/core'
 import { BoxStatus } from '../App'
 import './BoxCard.css'
 
@@ -42,20 +42,13 @@ const statusText = {
 
 export function BoxCard({ name, port, status, onClick }: PropType) {
   console.log(statusColors[status])
+  const baselink = `http://localhost:${port}`
   return (
     <Card className="BoxCard">
       <H5 className="BoxCard__Text">
         <Tag intent={statusColors[status]} round></Tag>
         {status === 'started' ? (
-          <a
-            href={`http://localhost:${port}`}
-            title="Go to box"
-            onClick={(ev) => {
-              ev.preventDefault()
-              //@ts-expect-error type inference is a joke
-              shell.openExternal(ev.target.href)
-            }}
-          >
+          <a href={baselink} title="Go to box" onClick={onClickLink}>
             {name}
           </a>
         ) : (
@@ -66,6 +59,10 @@ export function BoxCard({ name, port, status, onClick }: PropType) {
         <b>Status: </b>
         {statusText[status]}
       </p>
+      <p>
+        <b>Port: </b>
+        {port}
+      </p>
       <Button
         intent={buttonColors[status]}
         loading={status === 'starting' || status === 'stopping'}
@@ -73,6 +70,30 @@ export function BoxCard({ name, port, status, onClick }: PropType) {
       >
         {buttonText[status]}
       </Button>
+
+      <div>
+        <Button
+          minimal
+          onClick={() => shell.openExternal(baselink)}
+          text="Go to site"
+        />
+        <Button
+          minimal
+          onClick={() => shell.openExternal(`${baselink}/wp-admin`)}
+          text="Go to admin"
+        />
+        <Button
+          minimal
+          onClick={() => shell.openExternal(`${baselink}/phpmyadmin`)}
+          text="Go to database"
+        ></AnchorButton>
+      </div>
     </Card>
   )
+}
+
+function onClickLink(ev: React.MouseEvent<HTMLAnchorElement>) {
+  console.log(ev)
+  ev.preventDefault()
+  shell.openExternal((ev.target as HTMLAnchorElement).href)
 }
