@@ -71,30 +71,32 @@ export function BoxCard({ name, port, status, onClick }: PropType) {
         {buttonText[status]}
       </Button>
 
-      {status === 'started' && (
-        <div>
-          <Button
-            minimal
-            onClick={() => shell.openExternal(baselink)}
-            text="Go to site"
-          />
-          <Button
-            minimal
-            onClick={() => shell.openExternal(`${baselink}/wp-admin`)}
-            text="Go to admin"
-          />
-          <Button
-            minimal
-            onClick={() => shell.openExternal(`${baselink}/phpmyadmin`)}
-            text="Go to database"
-          />
-          <Button
-            minimal
-            onClick={() => shell.openPath(`${ROOT_DIRECTORY}/${name}/app`)}
-            text="Open app folder"
-          />
-        </div>
-      )}
+      <div>
+        {status === 'started' && (
+          <>
+            <Button
+              minimal
+              onClick={() => shell.openExternal(baselink)}
+              text="Go to site"
+            />
+            <Button
+              minimal
+              onClick={() => shell.openExternal(`${baselink}/wp-admin`)}
+              text="Go to admin"
+            />
+            <Button
+              minimal
+              onClick={() => shell.openExternal(`${baselink}/phpmyadmin`)}
+              text="Go to database"
+            />
+          </>
+        )}
+      </div>
+      <Button
+        minimal
+        onClick={() => shell.openPath(`${ROOT_DIRECTORY}/${name}/app`)}
+        text="Open app folder"
+      />
     </Card>
   )
 }

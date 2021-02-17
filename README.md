@@ -12,7 +12,7 @@ Install and administer any Bitnami installer from one app.
 - [x] open browser window to box
 - [x] open browser window to phpMyAdmin and admin
 - [x] open app directory
-- [ ] sanitize user input
+- [x] sanitize user input
 - [ ] Show spinner during installation
 - [ ] Show toast when finished
 - [ ] Download bitnami on first start
@@ -23,5 +23,9 @@ Install and administer any Bitnami installer from one app.
 - [ ] Remove box
 - [ ] Remove deactivate/preinstalled plugins
 - [ ] Add dev plugins
-- [ ] Open terminal with dev environment
+- [ ] Open terminal with dev environment (
+      https://stackoverflow.com/questions/55328916/electron-run-shell-commands-with-arguments
+      https://github.com/martinjackson/electron-run-shell-example/blob/master/gui-funct.js
+      https://discuss.atom.io/t/open-terminal-using-shell/64000/3
+      )
 - [ ] Make schön
