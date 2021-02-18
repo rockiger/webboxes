@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { shell } from 'electron'
 
-import { AnchorButton, Button, Card, H5, Intent, Tag } from '@blueprintjs/core'
+import { Button, Card, H5, Intent, Tag } from '@blueprintjs/core'
 import { BoxStatus, ROOT_DIRECTORY } from '../App'
 import './BoxCard.css'
 

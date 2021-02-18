@@ -13,8 +13,8 @@ Install and administer any Bitnami installer from one app.
 - [x] open browser window to phpMyAdmin and admin
 - [x] open app directory
 - [x] sanitize user input
-- [ ] Show spinner during installation
-- [ ] Show toast when finished
+- [x] Show spinner during installation
+- [x] Show toast when finished
 - [ ] Download bitnami on first start
 - [ ] Phpinfo, show php info, warning that box should not be uploaded to production
 - [ ] Starter Information before first box creation

@@ -5,6 +5,7 @@ import _ from 'lodash'
 import os from 'os'
 import path from 'path'
 import util from 'util'
+import { Intent, Toaster } from '@blueprintjs/core'
 import produce from 'immer'
 import { Main } from './Main'
 import { Toolbar } from './Toolbar'
@@ -12,6 +13,8 @@ import { Toolbar } from './Toolbar'
 import 'normalize.css/normalize.css'
 import '@blueprintjs/core/lib/css/blueprint.css'
 import { AddBoxDialog } from './AddBoxDialog'
+import { AppToaster } from './AppToaster'
+import { WaitOverlay } from './WaitOverlay'
 
 const exec = util.promisify(child_process.exec)
 
@@ -43,7 +46,9 @@ type Action =
       payload: { boxName: string; boxStatus: BoxStatus }
     }
   | { type: 'closeAddBoxDialog' }
+  | { type: 'closeWaitOverlay' }
   | { type: 'openAddBoxDialog' }
+  | { type: 'openWaitOverlay' }
   | { type: 'updateBoxes'; payload: { boxes: Boxes } }
 
 export interface Box {
@@ -60,12 +65,14 @@ export type BoxStatus = 'starting' | 'started' | 'stopping' | 'stopped'
 interface State {
   boxes: Boxes
   isOpenAddBoxDialog: boolean
+  isOpenWaitOverlay: boolean
   isStale: boolean
 }
 
 const initialState = {
   boxes: getBoxes(),
   isOpenAddBoxDialog: false,
+  isOpenWaitOverlay: false,
   isStale: false,
 }
 
@@ -77,11 +84,17 @@ function reducer(state: State, action: Action) {
     case 'closeAddBoxDialog':
       state.isOpenAddBoxDialog = false
       break
+    case 'closeWaitOverlay':
+      state.isOpenWaitOverlay = false
+      break
     case 'openAddBoxDialog':
       return {
         ...state,
         isOpenAddBoxDialog: true,
       }
+    case 'openWaitOverlay':
+      state.isOpenWaitOverlay = true
+      break
     case 'updateBoxes':
       state.boxes = action.payload.boxes
       break
@@ -108,6 +121,7 @@ export function App() {
         onCreate={onCreateBox}
         takenNames={_.keys(state.boxes)}
       />
+      <WaitOverlay isOpen={state.isOpenWaitOverlay} />
     </div>
   )
 
@@ -135,10 +149,15 @@ export function App() {
   }
 
   function onCreateBox(name: string) {
-    createBox(name, state.boxes)
     closeAddBoxDialog()
-    const boxes = updateBoxes()
-    dispatch({ type: 'updateBoxes', payload: { boxes } })
+    dispatch({ type: 'openWaitOverlay' })
+    setTimeout(() => {
+      createBox(name, state.boxes)
+      const boxes = updateBoxes()
+      dispatch({ type: 'updateBoxes', payload: { boxes } })
+      dispatch({ type: 'closeWaitOverlay' })
+      AppToaster.show({ message: 'Box Created', intent: Intent.SUCCESS })
+    }, 100)
   }
 
   function openAddBoxDialog() {

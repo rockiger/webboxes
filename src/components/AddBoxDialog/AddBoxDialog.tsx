@@ -1,4 +1,4 @@
-import React, { SyntheticEvent } from 'react'
+import React from 'react'
 import {
   Button,
   Classes,
@@ -24,6 +24,8 @@ export function AddBoxDialog({
 
   return (
     <Dialog
+      autoFocus={true}
+      enforceFocus={true}
       isOpen={isOpen}
       isCloseButtonShown={true}
       onClose={onClose}
@@ -44,6 +46,7 @@ export function AddBoxDialog({
             labelInfo="(required)"
           >
             <InputGroup
+              autoFocus={true}
               id="box-name-input"
               onChange={(ev) => setBoxName(ev.target.value)}
               onKeyDown={(ev) =>
@@ -68,7 +71,7 @@ export function AddBoxDialog({
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
           <Button onClick={onClose}>Close</Button>
           <Button
-            disabled={!boxName.length}
+            disabled={!!boxNameState(boxName, takenNames)}
             intent={Intent.PRIMARY}
             onClick={() => onCreate(boxName)}
           >
@@ -81,22 +84,40 @@ export function AddBoxDialog({
 }
 
 const HelperText = ({ boxName, takenNames }) => {
-  console.log(boxName.length)
+  switch (boxNameState(boxName, takenNames)) {
+    case 'empty':
+      return <br />
+    case 'short':
+      return <span>Minimum name length is 3.</span>
+    case 'taken':
+      return <span>Name already taken.</span>
+    case 'characters':
+      return (
+        <span>
+          Box tiles must contain only letters, numbers, underscores and hyphens:{' '}
+          <b>0-9a-zA-Z_-</b> Hyphens can't be at the beginning or end of the
+          name.
+        </span>
+      )
+    default:
+      return <br />
+  }
+}
+
+function boxNameState(
+  boxName,
+  takenNames
+): 'empty' | 'short' | 'taken' | 'characters' | '' {
   if (boxName.length < 1) {
-    return <br />
+    return 'empty'
   } else if (boxName.length < 3) {
-    return <span>Minimum name length is 3.</span>
+    return 'short'
   } else if (takenNames.includes(boxName)) {
-    return <span>Name already taken.</span>
+    return 'taken'
   } else if (!/^[0-9a-zA-Z_][0-9a-zA-Z_-]*[0-9a-zA-Z_]{0,1}$/.test(boxName)) {
-    return (
-      <span>
-        Box tiles must contain only letters, numbers, underscores and hyphens:{' '}
-        <b>0-9a-zA-Z_-</b> Hyphens can't be at the beginning or end of the name.
-      </span>
-    )
+    return 'characters'
   } else {
-    return <br />
+    return ''
   }
 }
 
