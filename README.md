@@ -29,3 +29,6 @@ Install and administer any Bitnami installer from one app.
       https://discuss.atom.io/t/open-terminal-using-shell/64000/3
       )
 - [ ] Make schön
+- [ ] Build version with neutralino js
+- [ ] Build version with nodegui https://react.nodegui.org
+- [ ] Build version with react-gtk

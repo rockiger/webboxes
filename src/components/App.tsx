@@ -1,24 +1,28 @@
 import React from 'react'
 import child_process from 'child_process'
+import download from 'download'
 import fs from 'fs'
 import _ from 'lodash'
 import os from 'os'
 import path from 'path'
 import util from 'util'
-import { Intent, Toaster } from '@blueprintjs/core'
+import { Intent } from '@blueprintjs/core'
 import produce from 'immer'
 import { Main } from './Main'
 import { Toolbar } from './Toolbar'
 
 import 'normalize.css/normalize.css'
 import '@blueprintjs/core/lib/css/blueprint.css'
+
 import { AddBoxDialog } from './AddBoxDialog'
 import { AppToaster } from './AppToaster'
+import { InstallerAlert } from './InstallerAlert'
 import { WaitOverlay } from './WaitOverlay'
 
 const exec = util.promisify(child_process.exec)
 
 export const ROOT_DIRECTORY = `${os.homedir()}/WebBoxes`
+const INSTALLER_DIRECTORY = path.normalize(`${ROOT_DIRECTORY}/.installers`)
 const FIXED_INSTALLER_OPTIONS =
   '--unattendedmodeui none --mode unattended  --disable-components varnish --base_password pass  --launch_cloud 0'
 const WPCONFIG_NEEDLE =
@@ -46,8 +50,10 @@ type Action =
       payload: { boxName: string; boxStatus: BoxStatus }
     }
   | { type: 'closeAddBoxDialog' }
+  | { type: 'closeInstallerAlert' }
   | { type: 'closeWaitOverlay' }
   | { type: 'openAddBoxDialog' }
+  | { type: 'openInstallerAlert' }
   | { type: 'openWaitOverlay' }
   | { type: 'updateBoxes'; payload: { boxes: Boxes } }
 
@@ -65,6 +71,7 @@ export type BoxStatus = 'starting' | 'started' | 'stopping' | 'stopped'
 interface State {
   boxes: Boxes
   isOpenAddBoxDialog: boolean
+  isOpenInstallerAlert: boolean
   isOpenWaitOverlay: boolean
   isStale: boolean
 }
@@ -72,6 +79,7 @@ interface State {
 const initialState = {
   boxes: getBoxes(),
   isOpenAddBoxDialog: false,
+  isOpenInstallerAlert: false,
   isOpenWaitOverlay: false,
   isStale: false,
 }
@@ -84,6 +92,9 @@ function reducer(state: State, action: Action) {
     case 'closeAddBoxDialog':
       state.isOpenAddBoxDialog = false
       break
+    case 'closeInstallerAlert':
+      state.isOpenInstallerAlert = false
+      break
     case 'closeWaitOverlay':
       state.isOpenWaitOverlay = false
       break
@@ -92,6 +103,9 @@ function reducer(state: State, action: Action) {
         ...state,
         isOpenAddBoxDialog: true,
       }
+    case 'openInstallerAlert':
+      state.isOpenInstallerAlert = true
+      break
     case 'openWaitOverlay':
       state.isOpenWaitOverlay = true
       break
@@ -106,9 +120,16 @@ function reducer(state: State, action: Action) {
 export function App() {
   const [state, dispatch] = React.useReducer(produce(reducer), initialState)
   console.log(state)
+
   React.useEffect(() => {
     const boxes = updateBoxes()
     dispatch({ type: 'updateBoxes', payload: { boxes } })
+  }, [])
+
+  React.useEffect(() => {
+    if (!getInstaller()) {
+      dispatch({ type: 'openInstallerAlert' })
+    }
   }, [])
 
   return (
@@ -121,12 +142,21 @@ export function App() {
         onCreate={onCreateBox}
         takenNames={_.keys(state.boxes)}
       />
+      <InstallerAlert
+        isOpen={state.isOpenInstallerAlert}
+        onCancel={closeInstallerAlert}
+        onConfirm={downloadInstaller}
+      />
       <WaitOverlay isOpen={state.isOpenWaitOverlay} />
     </div>
   )
 
   function closeAddBoxDialog() {
     dispatch({ type: 'closeAddBoxDialog' })
+  }
+
+  function closeInstallerAlert() {
+    dispatch({ type: 'closeInstallerAlert' })
   }
 
   async function onClickToggleBox(boxName: string) {
@@ -161,7 +191,11 @@ export function App() {
   }
 
   function openAddBoxDialog() {
-    dispatch({ type: 'openAddBoxDialog' })
+    if (getInstaller()) {
+      dispatch({ type: 'openAddBoxDialog' })
+    } else {
+      dispatch({ type: 'openInstallerAlert' })
+    }
   }
 }
 
@@ -184,7 +218,7 @@ function createBox(name: string, boxes: Boxes) {
 
     // install wordpress box
     const wordpressInstaller = path.normalize(
-      `${ROOT_DIRECTORY}/.installers/bitnami-wordpress-installer.run`
+      `${ROOT_DIRECTORY}/.installers/${getInstaller}`
     )
     const installerCommand = `${wordpressInstaller} --prefix ${bitnamiDirectory} --wordpress_blog_name ${name} --apache_server_port ${
       8080 + _.size(boxes)
@@ -226,6 +260,34 @@ function createBox(name: string, boxes: Boxes) {
     child_process.execSync(`ln -s ${wpContent} ${app}`)
   } catch (e) {
     alert(e)
+  }
+}
+
+async function downloadInstaller() {
+  // Create box directory
+  fs.mkdirSync(INSTALLER_DIRECTORY, { recursive: true })
+  await download(
+    `https://bitnami.com/redirect/to/1364386/bitnami-wordpresspro-5.6.2-0-linux-x64-installer.run`,
+    INSTALLER_DIRECTORY
+  )
+  AppToaster.show({ message: 'Installer downloaded', intent: Intent.SUCCESS })
+}
+
+function getInstaller(): string {
+  try {
+    return thread(
+      '->',
+      fs.readdirSync(INSTALLER_DIRECTORY),
+      [
+        _.reduce,
+        (acc, el) =>
+          el.startsWith('bitnami-wordpress') && el > acc ? el : acc,
+        '',
+      ],
+      trace
+    )
+  } catch (e) {
+    return ''
   }
 }
 
@@ -281,4 +343,40 @@ function updateBoxes(): Boxes {
     }),
     'name'
   )
+}
+
+/**
+ * Evaluates the given forms in order, the result of each form will be added last or first in the next form.
+ * @example thread(
+ *             '->',
+ *             arr,
+ *             fn1,
+ *             [fn2, arg2]
+ *          )
+ * @param {'->' | '-->'} threadType --> for thread last and -> for thread first
+ * @param {*} initialValue
+ * @param  {...any} forms
+ * @returns any
+ */
+export const thread = (threadType, initialValue, ...forms) => {
+  return forms.reduce((acc, curVal) => {
+    if (Array.isArray(curVal)) {
+      const [head, ...rest] = curVal
+      return threadType === '->'
+        ? head.apply(this, [acc, ...rest])
+        : head.apply(this, [...rest, acc])
+    } else {
+      return curVal(acc)
+    }
+  }, initialValue)
+}
+
+/**
+ * Log a value to the console and return it again. Useful for logging a provisional result from the thread function.
+ * @param {any} x the value to log
+ * @return {any} the given value x
+ */
+export const trace = (x) => {
+  console.log(x)
+  return x
 }
