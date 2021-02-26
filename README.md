@@ -15,7 +15,7 @@ Install and administer any Bitnami installer from one app.
 - [x] sanitize user input
 - [x] Show spinner during installation
 - [x] Show toast when finished
-- [ ] Download bitnami on first start
+- [x] Download bitnami on first start
 - [ ] Phpinfo, show php info, warning that box should not be uploaded to production
 - [ ] Starter Information before first box creation
 - [ ] Add more types of boxes

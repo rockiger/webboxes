@@ -218,11 +218,13 @@ function createBox(name: string, boxes: Boxes) {
 
     // install wordpress box
     const wordpressInstaller = path.normalize(
-      `${ROOT_DIRECTORY}/.installers/${getInstaller}`
+      `${ROOT_DIRECTORY}/.installers/${getInstaller()}`
     )
-    const installerCommand = `${wordpressInstaller} --prefix ${bitnamiDirectory} --wordpress_blog_name ${name} --apache_server_port ${
+    const installerCommand = `${wordpressInstaller} --prefix ${bitnamiDirectory} --wordpress_blog_name ${name} --nginx_port ${
       8080 + _.size(boxes)
-    } --mysql_port ${3306 + _.size(boxes)} ${FIXED_INSTALLER_OPTIONS}`
+    } --nginx_ssl_port ${8043 + _.size(boxes)} --mysql_port ${
+      3306 + _.size(boxes)
+    } ${FIXED_INSTALLER_OPTIONS}`
     child_process.execSync(installerCommand)
 
     // config root directory
@@ -270,6 +272,13 @@ async function downloadInstaller() {
     `https://bitnami.com/redirect/to/1364386/bitnami-wordpresspro-5.6.2-0-linux-x64-installer.run`,
     INSTALLER_DIRECTORY
   )
+  fs.chmodSync(
+    path.normalize(
+      `${INSTALLER_DIRECTORY}/bitnami-wordpresspro-5.6.2-0-linux-x64-installer.run`
+    ),
+    fs.constants.S_IRWXU
+  )
+
   AppToaster.show({ message: 'Installer downloaded', intent: Intent.SUCCESS })
 }
 
@@ -310,15 +319,15 @@ function getBoxPort(boxName: string): number {
     .map((el) => el.split('='))
     .filter((el) => el.length === 2)
   const propertiesObj = Object.fromEntries(propertiesKeyValueArr)
-  return parseInt(propertiesObj['apache_server_port'])
+  return parseInt(propertiesObj['nginx_port'])
 }
 
 function getBoxStatus(boxName: string): BoxStatus {
   const ctlscript = path.normalize(
     `${ROOT_DIRECTORY}/${boxName}/bitnami/ctlscript.sh`
   )
-  const result = child_process.execSync(`${ctlscript} status apache`)
-  if (result.toString() === 'apache not running\n') {
+  const result = child_process.execSync(`${ctlscript} status nginx`)
+  if (result.toString() === 'Nginx not running\n') {
     return 'stopped'
   } else {
     return 'started'
