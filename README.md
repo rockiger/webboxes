@@ -16,13 +16,11 @@ Install and administer any Bitnami installer from one app.
 - [x] Show spinner during installation
 - [x] Show toast when finished
 - [x] Download bitnami on first start
-- [ ] Phpinfo, show php info, warning that box should not be uploaded to production
+- [x] Remove bitnami banner
 - [ ] Starter Information before first box creation
-- [ ] Add more types of boxes
-- [ ] Remove bitnami banner
 - [ ] Remove box
-- [ ] Remove deactivate/preinstalled plugins
-- [ ] Add dev plugins
+- [ ] Remove deactivate/preinstalled plugins (wp plugin uninstall --all)
+- [ ] Add dev plugins (phpInfo, debug_bar, etc.)
 - [ ] Open terminal with dev environment (
       https://stackoverflow.com/questions/55328916/electron-run-shell-commands-with-arguments
       https://github.com/martinjackson/electron-run-shell-example/blob/master/gui-funct.js
@@ -32,3 +30,4 @@ Install and administer any Bitnami installer from one app.
 - [ ] Build version with neutralino js
 - [ ] Build version with nodegui https://react.nodegui.org
 - [ ] Build version with react-gtk
+- [ ] Add more types of boxes

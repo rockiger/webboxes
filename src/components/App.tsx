@@ -227,12 +227,15 @@ function createBox(name: string, boxes: Boxes) {
     } ${FIXED_INSTALLER_OPTIONS}`
     child_process.execSync(installerCommand)
 
-    // config root directory
+    // config root directory and remove bitnami banner
     const bnConfig = path.normalize(
       `${bitnamiDirectory}/apps/wordpress/bnconfig`
     )
-    const bnConfigCommand = `${bnConfig} --appurl /`
-    child_process.execSync(bnConfigCommand)
+    const changeAppUrlCommand = `${bnConfig} --appurl /`
+    child_process.execSync(changeAppUrlCommand)
+
+    const removeBitnamiCommand = `${bnConfig} --disable_banner 1`
+    child_process.execSync(removeBitnamiCommand)
 
     // disable opcache
     const phpIni = path.normalize(`${bitnamiDirectory}/php/etc/php.ini`)
