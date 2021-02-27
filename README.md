@@ -17,7 +17,7 @@ Install and administer any Bitnami installer from one app.
 - [x] Show toast when finished
 - [x] Download bitnami on first start
 - [x] Remove bitnami banner
-- [ ] Starter Information before first box creation
+- [x] Welcome Screen
 - [ ] Remove box
 - [ ] Remove deactivate/preinstalled plugins (wp plugin uninstall --all)
 - [ ] Add dev plugins (phpInfo, debug_bar, etc.)

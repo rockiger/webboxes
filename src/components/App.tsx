@@ -18,6 +18,7 @@ import { AddBoxDialog } from './AddBoxDialog'
 import { AppToaster } from './AppToaster'
 import { InstallerAlert } from './InstallerAlert'
 import { WaitOverlay } from './WaitOverlay'
+import { WelcomeScreen } from './WelcomeScreen'
 
 const exec = util.promisify(child_process.exec)
 
@@ -127,27 +128,37 @@ export function App() {
   }, [])
 
   React.useEffect(() => {
-    if (!getInstaller()) {
+    if (!getInstaller() && !_.isEmpty(getBoxes())) {
       dispatch({ type: 'openInstallerAlert' })
     }
   }, [])
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
-      <Toolbar onAddBox={openAddBoxDialog} />
-      <Main boxes={state.boxes} onClickToggleBox={onClickToggleBox} />
-      <AddBoxDialog
-        isOpen={state.isOpenAddBoxDialog}
-        onClose={closeAddBoxDialog}
-        onCreate={onCreateBox}
-        takenNames={_.keys(state.boxes)}
-      />
-      <InstallerAlert
-        isOpen={state.isOpenInstallerAlert}
-        onCancel={closeInstallerAlert}
-        onConfirm={downloadInstaller}
-      />
-      <WaitOverlay isOpen={state.isOpenWaitOverlay} />
+      <Toolbar hasInstaller={getInstaller()} onAddBox={openAddBoxDialog} />
+      {_.isEmpty(updateBoxes()) ? (
+        <WelcomeScreen
+          hasInstaller={getInstaller()}
+          onAddBox={openAddBoxDialog}
+          onDownload={downloadInstaller}
+        />
+      ) : (
+        <Main boxes={state.boxes} onClickToggleBox={onClickToggleBox} />
+      )}
+      <>
+        <AddBoxDialog
+          isOpen={state.isOpenAddBoxDialog}
+          onClose={closeAddBoxDialog}
+          onCreate={onCreateBox}
+          takenNames={_.keys(state.boxes)}
+        />
+        <InstallerAlert
+          isOpen={state.isOpenInstallerAlert}
+          onCancel={closeInstallerAlert}
+          onConfirm={downloadInstaller}
+        />
+        <WaitOverlay isOpen={state.isOpenWaitOverlay} />
+      </>
     </div>
   )
 

@@ -2,14 +2,20 @@ import React from 'react'
 import { Alignment, Button, Navbar } from '@blueprintjs/core'
 
 interface ToolbarProps {
+  hasInstaller: string
   onAddBox: () => void
 }
-export function Toolbar({ onAddBox }: ToolbarProps) {
+export function Toolbar({ onAddBox, hasInstaller }: ToolbarProps) {
   return (
     <>
       <Navbar fixedToTop>
         <Navbar.Group align={Alignment.LEFT}>
-          <Button className="bp3-minimal" icon="plus" onClick={onAddBox} />
+          <Button
+            className="bp3-minimal"
+            disabled={!hasInstaller}
+            icon="plus"
+            onClick={onAddBox}
+          />
         </Navbar.Group>
         <Navbar.Group align={Alignment.CENTER}></Navbar.Group>
         <Navbar.Group align={Alignment.RIGHT}>
